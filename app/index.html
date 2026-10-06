@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plyntos Vision AI — Unified Customer Churn Analytics Suite</title>
+  <!-- Google Fonts: Playfair Display & Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="plyntos-body dark-theme" id="app-body">
+  <div class="plyntos-app-wrapper">
+    <!-- Top Navbar -->
+    <header class="plyntos-navbar">
+      <div class="nav-left-group">
+        <!-- Logo -->
+        <div class="plyntos-logo">
+          <div class="logo-lightning-box">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <span class="plyntos-wordmark">Plyntos <small class="logo-tag">Vision AI</small></span>
+        </div>
+
+        <!-- Segmented Pill Navigation Tabs -->
+        <nav class="plyntos-nav-pills">
+          <a href="#overview" class="plyntos-pill active" data-tab="overview">Overview</a>
+          <a href="#predictor" class="plyntos-pill" data-tab="predictor">Live Predictor</a>
+          <a href="#models" class="plyntos-pill" data-tab="models">Model Studio</a>
+          <a href="#simulator" class="plyntos-pill" data-tab="simulator">Threshold Simulator</a>
+          <a href="#drivers" class="plyntos-pill" data-tab="drivers">Churn Drivers</a>
+        </nav>
+      </div>
+
+      <!-- Right Nav Search & Actions -->
+      <div class="nav-right-group">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="global-search" placeholder="Search subscribers..." oninput="filterTable(this.value)">
+        </div>
+        <button class="nav-icon-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme" onclick="toggleTheme()">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="nav-icon-btn" title="Notifications">
+          <i class="fa-regular fa-bell"></i>
+          <span class="notification-dot"></span>
+        </button>
+        <div class="user-avatar-blue" title="Retention Analyst">RA</div>
+      </div>
+    </header>
+
+    <!-- Page Header Section -->
+    <section class="plyntos-page-header">
+      <div class="header-left">
+        <span class="eyebrow-label">ENTERPRISE CHURN ANALYTICS & PREDICTION SYSTEM</span>
+        <h1 class="header-title">Subscriber Retention Overview</h1>
+      </div>
+
+      <div class="header-right">
+        <div class="dropdown-pill">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Last 30 days</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <button class="btn-blue-export">
+          <i class="fa-solid fa-arrow-up-from-bracket"></i> Export Report
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab-overview" class="tab-content active">
+      <!-- Row 1: 4 KPI Cards Grid (Plyntos + ChurnVision Combined) -->
+      <div class="kpi-row-grid">
+        <!-- KPI 1: At-Risk Revenue (Solid Blue Gradient Card) -->
+        <div class="kpi-card solid-blue-gradient">
+          <div class="kpi-top-bar">
+            <span class="kpi-label white-text">At-Risk Annual Revenue</span>
+            <button class="bookmark-btn"><i class="fa-regular fa-bookmark"></i></button>
+          </div>
+          <h2 class="kpi-value white-text" id="kpi-revenue">$284,650</h2>
+          <div class="kpi-badge-wrapper">
+            <span class="badge-green-white">↑ 18.2% vs last month</span>
+          </div>
+        </div>
+
+        <!-- KPI 2: Total Subscribers (White Card) -->
+        <div class="kpi-card white-card">
+          <div class="kpi-top-bar">
+            <span class="kpi-label">Total Subscribers</span>
+            <div class="kpi-icon-circle blue-light-bg"><i class="fa-solid fa-users blue-text"></i></div>
+          </div>
+          <h2 class="kpi-value" id="kpi-orders">7,043</h2>
+          <div class="kpi-badge-wrapper">
+            <span class="badge-green">↑ 9.4% active base</span>
+          </div>
+        </div>
+
+        <!-- KPI 3: Model ROC-AUC Score (White Card) -->
+        <div class="kpi-card white-card">
+          <div class="kpi-top-bar">
+            <span class="kpi-label">Best Model ROC-AUC</span>
+            <div class="kpi-icon-circle purple-light-bg"><i class="fa-solid fa-bullseye purple-text"></i></div>
+          </div>
+          <h2 class="kpi-value" id="kpi-roc">90.15%</h2>
+          <div class="kpi-badge-wrapper">
+            <span class="badge-green">↑ 12.7% vs baseline</span>
+          </div>
+        </div>
+
+        <!-- KPI 4: Overall Churn Rate (White Card) -->
+        <div class="kpi-card white-card">
+          <div class="kpi-top-bar">
+            <span class="kpi-label">Overall Churn Rate</span>
+            <div class="kpi-icon-circle red-light-bg"><i class="fa-solid fa-user-minus red-text"></i></div>
+          </div>
+          <h2 class="kpi-value" id="kpi-churn-rate">26.5%</h2>
+          <div class="kpi-badge-wrapper">
+            <span class="badge-red">↓ 0.8% vs last month</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 2: Performance Chart (Wide ~75%) + Conversion Arc Ring (Narrow ~25%) -->
+      <div class="middle-row-grid mt-lg">
+        <!-- Performance Dual Bar Chart Card (Wide ~75%) -->
+        <div class="plyntos-card performance-wide-card">
+          <div class="card-header-bar">
+            <h3>Contract & Retention Performance</h3>
+            <div class="header-right-group">
+              <div class="chart-legend">
+                <span class="legend-item"><span class="dot-blue"></span> Retained</span>
+                <span class="legend-item"><span class="dot-striped-blue"></span> Churned</span>
+              </div>
+              <button class="menu-dots-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+            </div>
+          </div>
+
+          <div class="performance-chart-wrapper">
+            <!-- Active Tooltip Popover Overlay -->
+            <div class="chart-active-tooltip" id="monday-tooltip">
+              <div class="tooltip-date">Month-to-Month Contract</div>
+              <div class="tooltip-row">
+                <span class="dot-purple"></span>
+                <span>Retained — <strong id="tt-sales">2,220</strong></span>
+              </div>
+              <div class="tooltip-row">
+                <span class="dot-purple-dark"></span>
+                <span>Churned — <strong id="tt-rev">1,655 ($142.9k)</strong></span>
+              </div>
+            </div>
+
+            <canvas id="plyntosPerformanceChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Churn Conversion Ring Card (Narrow ~25%) -->
+        <div class="plyntos-card conversion-narrow-card">
+          <div class="card-header-bar">
+            <h3>Churn Risk Index</h3>
+            <div class="dropdown-pill-sm">
+              <span>GB Model</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+          </div>
+
+          <div class="conversion-ring-wrapper">
+            <svg class="ring-svg" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="62" fill="none" stroke="var(--border-light)" stroke-width="16"/>
+              <circle id="ring-progress-circle" cx="80" cy="80" r="62" fill="none" stroke="var(--blue-primary)" stroke-width="16" 
+                      stroke-dasharray="389" stroke-dashoffset="148" stroke-linecap="round"/>
+            </svg>
+            <div class="ring-center-text">
+              <h2 id="ring-percentage">62%</h2>
+              <span class="ring-sub">Risk Rate</span>
+            </div>
+          </div>
+
+          <div class="conversion-pills-row mt-md">
+            <div class="stat-pill-box">
+              <span class="stat-pill-title">Predicted Churners</span>
+              <div class="stat-pill-bottom">
+                <strong id="stat-num-sales">1,869</strong>
+                <span class="pill-badge-green">4.5% ↗</span>
+              </div>
+            </div>
+
+            <div class="stat-pill-box">
+              <span class="stat-pill-title">Avg Risk Score</span>
+              <div class="stat-pill-bottom">
+                <strong id="stat-tot-rev">78.5%</strong>
+                <span class="pill-badge-dark">4.5% ↗</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 3: Recent Subscribers Table (Full Width White Card) -->
+      <div class="plyntos-card full-width-card mt-lg">
+        <div class="card-header-bar">
+          <h3>Recent Subscriber Profiles & Risk Assessment</h3>
+          <a href="#predictor" onclick="switchTab('predictor')" class="link-blue-view">Explore All Predictions →</a>
+        </div>
+
+        <div class="table-container">
+          <table class="plyntos-orders-table">
+            <thead>
+              <tr>
+                <th>CUSTOMER ID</th>
+                <th>SUBSCRIBER</th>
+                <th>CONTRACT & SERVICE</th>
+                <th>TENURE</th>
+                <th>MONTHLY CHARGE</th>
+                <th>CHURN RISK STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <tr>
+                <td><a href="#" class="order-id-link">#7590-VHVEG</a></td>
+                <td>
+                  <div class="customer-cell">
+                    <div class="cust-avatar blue-avatar">MS</div>
+                    <span>Marina Sato</span>
+                  </div>
+                </td>
+                <td class="item-desc">Month-to-month · Fiber Optic</td>
+                <td>2 mos</td>
+                <td class="total-price">$94.80/mo</td>
+                <td><span class="status-pill-tag pending">High Risk (84%)</span></td>
+              </tr>
+
+              <tr>
+                <td><a href="#" class="order-id-link">#5575-GNVDE</a></td>
+                <td>
+                  <div class="customer-cell">
+                    <div class="cust-avatar teal-avatar">DR</div>
+                    <span>Dev Ramachandran</span>
+                  </div>
+                </td>
+                <td class="item-desc">One year · DSL</td>
+                <td>34 mos</td>
+                <td class="total-price">$56.95/mo</td>
+                <td><span class="status-pill-tag packing">Medium Risk (42%)</span></td>
+              </tr>
+
+              <tr>
+                <td><a href="#" class="order-id-link">#3668-QVRWS</a></td>
+                <td>
+                  <div class="customer-cell">
+                    <div class="cust-avatar purple-avatar">CH</div>
+                    <span>Colette Hart</span>
+                  </div>
+                </td>
+                <td class="item-desc">Two year · Fiber Optic</td>
+                <td>62 mos</td>
+                <td class="total-price">$114.05/mo</td>
+                <td><span class="status-pill-tag shipped">Low Risk (12%)</span></td>
+              </tr>
+
+              <tr>
+                <td><a href="#" class="order-id-link">#7795-CFOCW</a></td>
+                <td>
+                  <div class="customer-cell">
+                    <div class="cust-avatar red-avatar">TK</div>
+                    <span>Tomas Kepler</span>
+                  </div>
+                </td>
+                <td class="item-desc">Month-to-month · DSL</td>
+                <td>1 mo</td>
+                <td class="total-price">$45.20/mo</td>
+                <td><span class="status-pill-tag pending">High Risk (78%)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: LIVE PREDICTOR STUDIO -->
+    <section id="tab-predictor" class="tab-content">
+      <div class="grid-2col gap-lg">
+        <!-- Attributes Form Card -->
+        <div class="plyntos-card">
+          <div class="card-header-bar">
+            <h3><i class="fa-solid fa-sliders blue-text"></i> Interactive Subscriber Profile Simulator</h3>
+            <span class="eyebrow-label">REAL-TIME INFERENCE</span>
+          </div>
+
+          <div class="predictor-controls-grid-2">
+            <div class="control-item">
+              <label for="sim-tenure">Tenure (Months): <strong id="sim-tenure-val" class="blue-text">34 mo</strong></label>
+              <input type="range" id="sim-tenure" min="1" max="72" value="34" class="plyntos-slider" oninput="onPlyntosSimChange()">
+            </div>
+
+            <div class="control-item">
+              <label for="sim-charges">Monthly Charges ($): <strong id="sim-charges-val" class="blue-text">$85.00</strong></label>
+              <input type="range" id="sim-charges" min="18" max="120" value="85" class="plyntos-slider" oninput="onPlyntosSimChange()">
+            </div>
+
+            <div class="control-item mt-md">
+              <label for="sim-contract">Contract Type</label>
+              <select id="sim-contract" class="plyntos-select" onchange="onPlyntosSimChange()">
+                <option value="Month-to-month">Month-to-month (High Risk)</option>
+                <option value="One year" selected>One year (Moderate)</option>
+                <option value="Two year">Two year (Low Risk)</option>
+              </select>
+            </div>
+
+            <div class="control-item mt-md">
+              <label for="sim-service">Internet Service</label>
+              <select id="sim-service" class="plyntos-select" onchange="onPlyntosSimChange()">
+                <option value="Fiber optic" selected>Fiber Optic</option>
+                <option value="DSL">DSL</option>
+                <option value="No">No Internet Service</option>
+              </select>
+            </div>
+
+            <div class="control-item mt-md">
+              <label for="sim-tech">Tech Support</label>
+              <select id="sim-tech" class="plyntos-select" onchange="onPlyntosSimChange()">
+                <option value="No" selected>No Tech Support</option>
+                <option value="Yes">Yes (Tech Support Active)</option>
+              </select>
+            </div>
+
+            <div class="control-item mt-md">
+              <label for="sim-payment">Payment Method</label>
+              <select id="sim-payment" class="plyntos-select" onchange="onPlyntosSimChange()">
+                <option value="Electronic check" selected>Electronic check</option>
+                <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                <option value="Credit card (automatic)">Credit card (automatic)</option>
+                <option value="Mailed check">Mailed check</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Risk Result Card & Retention Strategy -->
+        <div class="plyntos-card text-center">
+          <div class="card-header-bar">
+            <h3><i class="fa-solid fa-shield-halved blue-text"></i> AI Retention Strategy</h3>
+          </div>
+
+          <div class="gauge-wrapper mt-md">
+            <div class="gauge-ring" id="gauge-ring">
+              <div class="gauge-center">
+                <h2 id="predictor-prob" class="blue-text">62%</h2>
+                <span class="text-sub">Churn Risk Probability</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="risk-badge" class="risk-badge medium mt-md">
+            <i class="fa-solid fa-triangle-exclamation"></i> MODERATE RISK
+          </div>
+
+          <div class="recommendations-box mt-lg text-left">
+            <h4><i class="fa-solid fa-lightbulb text-amber"></i> Actionable Retention Steps:</h4>
+            <ul id="recommendation-list">
+              <li>Offer 1-Year or 2-Year Contract upgrade with 15% monthly discount.</li>
+              <li>Bundle free Tech Support & Online Security for 6 months.</li>
+              <li>Transition payment method from Electronic Check to Automatic Bank Transfer.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MODEL COMPARISON STUDIO -->
+    <section id="tab-models" class="tab-content">
+      <div class="plyntos-card">
+        <div class="card-header-bar">
+          <h3>Model Evaluation Benchmark Studio</h3>
+          <span class="eyebrow-label">80/20 STRATIFIED HELD-OUT TEST EVALUATION</span>
+        </div>
+
+        <div class="table-container">
+          <table class="plyntos-orders-table">
+            <thead>
+              <tr>
+                <th>MODEL ARCHITECTURE</th>
+                <th>ACCURACY</th>
+                <th>RECALL</th>
+                <th>PRECISION</th>
+                <th>F1-SCORE</th>
+                <th>ROC-AUC</th>
+                <th>PR-AUC</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Logistic Regression (Baseline)</strong></td>
+                <td>81.25%</td>
+                <td>78.57%</td>
+                <td>73.33%</td>
+                <td>0.7586</td>
+                <td>0.8655</td>
+                <td>0.8120</td>
+                <td><span class="status-pill-tag packing">Baseline</span></td>
+              </tr>
+              <tr>
+                <td><strong>Logistic Regression (Class Balanced)</strong></td>
+                <td>78.75%</td>
+                <td>85.71%</td>
+                <td>66.67%</td>
+                <td>0.7500</td>
+                <td>0.8690</td>
+                <td>0.8145</td>
+                <td><span class="status-pill-tag pending">High Recall</span></td>
+              </tr>
+              <tr>
+                <td><strong>Random Forest Classifier</strong></td>
+                <td>83.75%</td>
+                <td>78.57%</td>
+                <td>78.57%</td>
+                <td>0.7857</td>
+                <td>0.8845</td>
+                <td>0.8310</td>
+                <td><span class="status-pill-tag shipped">Ensemble</span></td>
+              </tr>
+              <tr class="highlight-row-blue">
+                <td><strong>Gradient Boosting / XGBoost</strong></td>
+                <td><strong>86.25%</strong></td>
+                <td><strong>82.14%</strong></td>
+                <td><strong>82.14%</strong></td>
+                <td><strong>0.8214</strong></td>
+                <td><strong>0.9015</strong></td>
+                <td><strong>0.8540</strong></td>
+                <td><span class="status-pill-tag shipped">Top Model</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid-2col gap-lg mt-lg">
+        <div class="plyntos-card">
+          <div class="card-header-bar">
+            <h3>ROC Discriminative Curves</h3>
+          </div>
+          <div class="chart-container-lg">
+            <canvas id="chartRoc"></canvas>
+          </div>
+        </div>
+
+        <div class="plyntos-card">
+          <div class="card-header-bar">
+            <h3>Confusion Matrix (Gradient Boosting)</h3>
+          </div>
+          <div class="cm-grid mt-md">
+            <div class="cm-box tn">
+              <span>True Negative (Retained)</span>
+              <h2>57</h2>
+              <small>Correct Non-Churns</small>
+            </div>
+            <div class="cm-box fp">
+              <span>False Positive (False Alarm)</span>
+              <h2>2</h2>
+              <small>Predicted Churn, Was Retained</small>
+            </div>
+            <div class="cm-box fn">
+              <span>False Negative (Missed Churn)</span>
+              <h2>2</h2>
+              <small>Predicted Retained, Churned</small>
+            </div>
+            <div class="cm-box tp">
+              <span>True Positive (Caught Churn)</span>
+              <h2>12</h2>
+              <small>Correct Churns Caught</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: THRESHOLD SIMULATOR -->
+    <section id="tab-simulator" class="tab-content">
+      <div class="plyntos-card">
+        <div class="card-header-bar">
+          <h3>Decision Probability Threshold Optimization</h3>
+          <span class="eyebrow-label">RECALL VS PRECISION TRADE-OFF SIMULATION</span>
+        </div>
+
+        <div class="threshold-slider-box mt-md">
+          <label for="th-slider">Classification Threshold: <strong id="th-val" class="blue-text">0.50</strong></label>
+          <input type="range" id="th-slider" min="0.10" max="0.90" step="0.05" value="0.50" class="plyntos-slider" oninput="updateThresholdMetrics()">
+        </div>
+
+        <div class="kpi-row-grid mt-lg">
+          <div class="kpi-card white-card">
+            <span class="kpi-label">Recall (Caught Churners)</span>
+            <h2 id="th-recall" class="kpi-value blue-text">82.1%</h2>
+          </div>
+          <div class="kpi-card white-card">
+            <span class="kpi-label">Precision (Accuracy)</span>
+            <h2 id="th-precision" class="kpi-value green-text">82.1%</h2>
+          </div>
+          <div class="kpi-card white-card">
+            <span class="kpi-label">F1-Score</span>
+            <h2 id="th-f1" class="kpi-value purple-text">0.8214</h2>
+          </div>
+          <div class="kpi-card white-card">
+            <span class="kpi-label">Intervention Cost ($)</span>
+            <h2 id="th-cost" class="kpi-value red-text">$280.00</h2>
+          </div>
+        </div>
+
+        <div class="chart-container-lg mt-lg">
+          <canvas id="chartThreshold"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: CHURN DRIVERS -->
+    <section id="tab-drivers" class="tab-content">
+      <div class="plyntos-card">
+        <div class="card-header-bar">
+          <h3>Global Feature Importance (Top Predictors of Churn)</h3>
+        </div>
+        <div class="chart-container-lg">
+          <canvas id="chartFeatureImportance"></canvas>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

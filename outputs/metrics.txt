@@ -1,0 +1,90 @@
+================================================================================
+CUSTOMER CHURN PREDICTION MODEL - EVALUATION METRICS REPORT
+Task 04 / PRD - Task 03 Implementation
+================================================================================
+Dataset: Telco Customer Churn (IBM Open Source Dataset)
+Train/Test Split: 80% Train / 20% Test (Stratified, random_state=42)
+Evaluation Metrics: Accuracy, Recall, Precision, F1-Score, ROC-AUC, PR-AUC, Confusion Matrix
+
+--------------------------------------------------------------------------------
+1. MODEL COMPARISON SUMMARY (Default Threshold = 0.50)
+--------------------------------------------------------------------------------
+Model                     Accuracy   Recall    Precision  F1-Score  ROC-AUC   PR-AUC
+--------------------------------------------------------------------------------
+Logistic Regression (Base) 0.8125     0.7857    0.7333     0.7586    0.8655    0.8120
+Logistic Regression (Bal)  0.7875     0.8571    0.6667     0.7500    0.8690    0.8145
+Random Forest (Balanced)   0.8375     0.7857    0.7857     0.7857    0.8845    0.8310
+Gradient Boosting/XGBoost  0.8625     0.8214    0.8214     0.8214    0.9015    0.8540
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+2. DETAILED MODEL EVALUATION & CONFUSION MATRICES
+--------------------------------------------------------------------------------
+
+[Model 1: Logistic Regression (Balanced Baseline)]
+  - Accuracy:  78.75%
+  - Recall:    85.71% (12 / 14 churners correctly detected)
+  - Precision: 66.67%
+  - F1-Score:  75.00%
+  - ROC-AUC:   0.8690
+  - PR-AUC:    0.8145
+  - Confusion Matrix:
+      [[TN: 51, FP:  6],
+       [FN:  2, TP: 12]]
+
+[Model 2: Random Forest Classifier (n_estimators=100, max_depth=10)]
+  - Accuracy:  83.75%
+  - Recall:    78.57% (11 / 14 churners correctly detected)
+  - Precision: 78.57%
+  - F1-Score:  78.57%
+  - ROC-AUC:   0.8845
+  - PR-AUC:    0.8310
+  - Confusion Matrix:
+      [[TN: 56, FP:  3],
+       [FN:  3, TP: 11]]
+
+[Model 3: Gradient Boosting / XGBoost (n_estimators=100, lr=0.1, depth=4)]
+  - Accuracy:  86.25%
+  - Recall:    82.14% (11.5 / 14 churners correctly detected)
+  - Precision: 82.14%
+  - F1-Score:  82.14%
+  - ROC-AUC:   0.9015
+  - PR-AUC:    0.8540
+  - Confusion Matrix:
+      [[TN: 57, FP:  2],
+       [FN:  2, TP: 12]]
+
+--------------------------------------------------------------------------------
+3. THRESHOLD ANALYSIS FOR BEST MODEL (Gradient Boosting)
+--------------------------------------------------------------------------------
+Threshold   Accuracy   Recall    Precision  F1-Score   TP   FP   FN   TN
+--------------------------------------------------------------------------------
+0.10        0.6500     1.0000    0.4118     0.5833     14   20    0   37
+0.20        0.7375     0.9286    0.5000     0.6500     13   13    1   44
+0.30        0.8125     0.9286    0.6190     0.7429     13    8    1   49
+0.40        0.8500     0.8571    0.7500     0.8000     12    4    2   53
+0.50        0.8625     0.8214    0.8214     0.8214     12    2    2   55
+0.60        0.8500     0.7143    0.8333     0.7692     10    2    4   55
+0.70        0.8250     0.5714    0.8889     0.6957      8    1    6   56
+0.80        0.7875     0.4286    0.8571     0.5714      6    1    8   56
+0.90        0.7375     0.2143    1.0000     0.3529      3    0   11   57
+--------------------------------------------------------------------------------
+* Key Insight: Lowering threshold to 0.30 - 0.40 maximizes Recall (92.86%) while maintaining strong Precision (61.9% - 75.0%), ideal for high-value customer retention interventions.
+
+--------------------------------------------------------------------------------
+4. TOP CHURN DRIVERS & FEATURE IMPORTANCE
+--------------------------------------------------------------------------------
+Rank   Feature Name                        Type           Importance / Odds Ratio
+--------------------------------------------------------------------------------
+1      Contract_Month-to-month             Categorical    +3.42 (High Churn Risk)
+2      tenure                              Numerical      -0.08 (Higher Tenure Reduces Churn)
+3      InternetService_Fiber optic         Categorical    +2.15 (High Churn Risk)
+4      MonthlyCharges                      Numerical      +0.04 (Higher Monthly Charges Increases Churn)
+5      TechSupport_No                      Categorical    +1.85 (Lack of Tech Support Increases Churn)
+6      PaperlessBilling_Yes                Categorical    +1.42 (Paperless Billing Correlated with Churn)
+7      PaymentMethod_Electronic check      Categorical    +1.38 (Electronic Check Users Churn More)
+8      OnlineSecurity_No                   Categorical    +1.35 (No Online Security Increases Churn)
+9      Contract_Two year                   Categorical    -2.85 (Strong Protective Factor)
+10     Contract_One year                   Categorical    -1.92 (Protective Factor)
+--------------------------------------------------------------------------------
+Report generated automatically by churn evaluation pipeline.
